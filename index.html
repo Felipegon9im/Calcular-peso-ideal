@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Peso Ideal (IMC)</title>
+    <style>
+        /* Estilos básicos para o corpo da página */
+        body {
+            font-family: 'Inter', sans-serif; /* Usando Inter como fonte principal */
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh; /* Garante que a página ocupe a altura total da viewport */
+            background: linear-gradient(to bottom right, #e0f2fe, #c3dafe); /* Fundo gradiente suave */
+            color: #333; /* Cor de texto padrão */
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Estilo para o contêiner principal da calculadora */
+        .container {
+            background-color: #fff;
+            padding: 2.5rem; /* Aumenta o padding para mais espaço */
+            border-radius: 1rem; /* Cantos mais arredondados */
+            box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.1); /* Sombra mais pronunciada */
+            width: 100%;
+            max-width: 450px; /* Largura máxima para desktops */
+            box-sizing: border-box; /* Inclui padding e borda no cálculo da largura */
+            transform: translateY(0);
+            animation: fadeIn 0.8s ease-out forwards; /* Animação de entrada */
+        }
+
+        /* Animação para o contêiner */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50; /* Cor escura para o título */
+            margin-bottom: 2rem; /* Espaço abaixo do título */
+            font-size: 2.2rem; /* Tamanho maior para o título */
+            font-weight: 800; /* Mais negrito */
+        }
+
+        /* Estilo para os grupos de formulário (label + input) */
+        .form-group {
+            margin-bottom: 1.5rem; /* Espaço entre os grupos */
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.6rem; /* Espaço entre label e input */
+            font-weight: 600; /* Texto da label mais negrito */
+            color: #4a5568; /* Cor mais escura para as labels */
+            font-size: 0.95rem; /* Tamanho ligeiramente maior */
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 0.9rem; /* Padding generoso */
+            border: 1px solid #cbd5e0; /* Borda suave */
+            border-radius: 0.6rem; /* Cantos arredondados para inputs */
+            box-sizing: border-box;
+            font-size: 1.1rem; /* Tamanho da fonte maior para inputs */
+            transition: all 0.3s ease; /* Transição suave para foco */
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #3b82f6; /* Borda azul no foco */
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); /* Sombra suave no foco */
+        }
+
+        /* Estilo para o botão de cálculo */
+        button {
+            width: 100%;
+            padding: 1rem; /* Padding generoso para o botão */
+            background-color: #3b82f6; /* Cor de fundo azul */
+            color: white;
+            border: none;
+            border-radius: 0.6rem; /* Cantos arredondados */
+            font-size: 1.2rem; /* Tamanho da fonte maior */
+            font-weight: 700; /* Texto do botão mais negrito */
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease; /* Transições suaves */
+            box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3); /* Sombra para o botão */
+        }
+
+        button:hover {
+            background-color: #2563eb; /* Azul mais escuro no hover */
+            transform: translateY(-2px); /* Efeito de "levantar" no hover */
+        }
+
+        button:active {
+            transform: translateY(0); /* Volta ao normal ao clicar */
+        }
+
+        /* Estilo para a mensagem de erro */
+        #errorMessage {
+            color: #dc2626; /* Cor vermelha para erro */
+            text-align: center;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        /* Estilo para a seção de resultados */
+        #resultSection {
+            margin-top: 2rem; /* Espaço acima da seção de resultados */
+            padding: 1.5rem; /* Padding para a seção de resultados */
+            background-color: #eff6ff; /* Fundo azul claro */
+            border: 1px solid #bfdbfe; /* Borda azul clara */
+            border-radius: 0.8rem; /* Cantos arredondados */
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05); /* Sombra interna sutil */
+            animation: slideInUp 0.6s ease-out forwards; /* Animação de entrada para os resultados */
+            opacity: 0; /* Começa invisível para a animação */
+            transform: translateY(20px); /* Começa um pouco abaixo */
+        }
+
+        /* Animação para os resultados */
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        #resultSection h2 {
+            text-align: center;
+            color: #2c3e50;
+            font-size: 1.8rem; /* Tamanho maior para o título dos resultados */
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        #resultSection p {
+            font-size: 1.1rem; /* Tamanho maior para o texto dos resultados */
+            margin-bottom: 0.8rem;
+            line-height: 1.6; /* Espaçamento entre linhas */
+        }
+
+        #resultSection p span.label {
+            font-weight: 600; /* Labels dos resultados mais negrito */
+            color: #4a5568;
+        }
+
+        #resultSection p span.value-imc {
+            font-weight: 700;
+            color: #1d4ed8; /* Azul escuro para o valor do IMC */
+        }
+
+        #resultSection p span.value-classification {
+            font-weight: 800;
+            color: #10b981; /* Verde para classificação */
+        }
+
+        #resultSection p span.value-range {
+            font-weight: 800;
+            color: #059669; /* Verde mais escuro para a faixa de peso */
+        }
+
+        .disclaimer {
+            font-size: 0.85rem;
+            color: #6b7280; /* Cor cinza para o aviso */
+            text-align: center;
+            margin-top: 1.5rem;
+            font-style: italic;
+        }
+
+        /* Responsividade para telas menores */
+        @media (max-width: 600px) {
+            .container {
+                margin: 1rem; /* Margem em telas pequenas */
+                padding: 1.5rem;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            input[type="number"], button {
+                font-size: 1rem;
+                padding: 0.8rem;
+            }
+
+            #resultSection {
+                padding: 1rem;
+            }
+
+            #resultSection h2 {
+                font-size: 1.5rem;
+            }
+
+            #resultSection p {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Calculadora de Peso Ideal</h1>
+
+        <div class="form-group">
+            <label for="height">Altura (cm):</label>
+            <input type="number" id="height" placeholder="Ex: 175" aria-label="Input para altura em centímetros">
+        </div>
+
+        <div class="form-group">
+            <label for="weight">Peso (kg):</label>
+            <input type="number" id="weight" placeholder="Ex: 70" aria-label="Input para peso em quilogramas">
+        </div>
+
+        <p id="errorMessage" style="display: none;"></p>
+
+        <button id="calculateBtn" aria-label="Botão para calcular o IMC">Calcular IMC</button>
+
+        <div id="resultSection" style="display: none;">
+            <h2>Seus Resultados</h2>
+            <p><span class="label">Seu IMC:</span> <span id="imcResult" class="value-imc"></span></p>
+            <p><span class="label">Classificação:</span> <span id="imcClassification" class="value-classification"></span></p>
+            <p><span class="label">Faixa de Peso Ideal:</span> <span id="idealWeightRange" class="value-range"></span></p>
+            <p class="disclaimer">* O cálculo do IMC é uma estimativa e não substitui a avaliação de um profissional de saúde.</p>
+        </div>
+    </div>
+
+    <script>
+        // Obtém referências para os elementos DOM
+        const heightInput = document.getElementById('height');
+        const weightInput = document.getElementById('weight');
+        const calculateBtn = document.getElementById('calculateBtn');
+        const errorMessage = document.getElementById('errorMessage');
+        const resultSection = document.getElementById('resultSection');
+        const imcResultSpan = document.getElementById('imcResult');
+        const imcClassificationSpan = document.getElementById('imcClassification');
+        const idealWeightRangeSpan = document.getElementById('idealWeightRange');
+
+        /**
+         * Exibe uma mensagem de erro na interface.
+         * @param {string} message - A mensagem de erro a ser exibida.
+         */
+        function displayError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block'; // Torna a mensagem visível
+        }
+
+        /**
+         * Oculta a mensagem de erro.
+         */
+        function hideError() {
+            errorMessage.textContent = '';
+            errorMessage.style.display = 'none'; // Oculta a mensagem
+        }
+
+        /**
+         * Calcula o IMC e a faixa de peso ideal com base nos valores de altura e peso.
+         */
+        function calculateIMC() {
+            hideError(); // Limpa qualquer erro anterior
+            resultSection.style.display = 'none'; // Oculta a seção de resultados
+
+            const heightCm = parseFloat(heightInput.value);
+            const weightKg = parseFloat(weightInput.value);
+
+            // Validação de entrada
+            if (isNaN(heightCm) || isNaN(weightKg) || heightCm <= 0 || weightKg <= 0) {
+                displayError('Por favor, insira valores válidos e positivos para altura e peso.');
+                return;
+            }
+
+            // Converte altura de cm para metros
+            const heightMeters = heightCm / 100;
+
+            // Calcula o IMC: peso (kg) / (altura (m) * altura (m))
+            const imc = weightKg / (heightMeters * heightMeters);
+            imcResultSpan.textContent = imc.toFixed(2); // Arredonda para 2 casas decimais
+
+            // Determina a classificação do IMC
+            let classification = '';
+            if (imc < 18.5) {
+                classification = 'Abaixo do Peso';
+            } else if (imc >= 18.5 && imc < 24.9) {
+                classification = 'Peso Normal';
+            } else if (imc >= 25 && imc < 29.9) {
+                classification = 'Sobrepeso';
+            } else if (imc >= 30 && imc < 34.9) {
+                classification = 'Obesidade Grau I';
+            } else if (imc >= 35 && imc < 39.9) {
+                classification = 'Obesidade Grau II (severa)';
+            } else {
+                classification = 'Obesidade Grau III (mórbida)';
+            }
+            imcClassificationSpan.textContent = classification;
+
+            // Calcula a faixa de peso ideal (IMC entre 18.5 e 24.9)
+            const idealWeightLower = (18.5 * heightMeters * heightMeters).toFixed(1);
+            const idealWeightUpper = (24.9 * heightMeters * heightMeters).toFixed(1);
+            idealWeightRangeSpan.textContent = `Entre ${idealWeightLower} kg e ${idealWeightUpper} kg`;
+
+            // Exibe a seção de resultados
+            resultSection.style.display = 'block';
+        }
+
+        // Adiciona o event listener ao botão de cálculo
+        calculateBtn.addEventListener('click', calculateIMC);
+
+        // Opcional: Adicionar listeners para limpar erro e resultado ao digitar
+        heightInput.addEventListener('input', () => {
+            hideError();
+            resultSection.style.display = 'none';
+        });
+        weightInput.addEventListener('input', () => {
+            hideError();
+            resultSection.style.display = 'none';
+        });
+    </script>
+</body>
+</html>
