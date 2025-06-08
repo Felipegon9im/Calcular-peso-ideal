@@ -1,1 +1,0 @@
-# Calcular-peso-ideal
